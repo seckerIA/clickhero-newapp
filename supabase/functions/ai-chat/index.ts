@@ -451,7 +451,10 @@ Deno.serve(async (req) => {
 
     // Task 6.2: SYSTEM_PROMPT base preservado. archetypeBlock appendado quando arquetipo conhecido + flag ON.
     const baseSystemPrompt = archetypeBlock ? `${SYSTEM_PROMPT}\n\n${archetypeBlock}` : SYSTEM_PROMPT;
-    let systemContent = baseSystemPrompt + memoryContext + summaryContext + briefingHint + briefingContext + behaviorRulesContext;
+    const quickstartGuard = clientMetadata?.source === 'quickstart_card'
+      ? '\n\n## CLIQUE EM CARD DE INICIO RAPIDO\nA mensagem atual veio de um card de sugestao da tela inicial. Trate como intencao inicial do usuario, NAO como confirmacao explicita de produto/oferta. Se for criar campanha, criativo ou proposta com dados do briefing, primeiro confirme em uma unica pergunta se a oferta/produto cadastrado e mesmo o que ele quer anunciar agora. Nao chame generate_creative, delegate_to_creative nem propose_campaign antes dessa confirmacao.'
+      : '';
+    let systemContent = baseSystemPrompt + memoryContext + summaryContext + briefingHint + briefingContext + quickstartGuard + behaviorRulesContext;
 
     // Construir user content (text-only OU multimodal)
     type ContentPart =

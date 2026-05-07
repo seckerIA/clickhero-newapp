@@ -17,7 +17,7 @@ export const CREATE_AD_CAMPAIGN_QUICKSTART: QuickstartCard = {
   id: 'create-ad-campaign',
   title: 'Criar campanha de anúncio',
   prompt:
-    'Quero criar uma campanha de anúncio no Meta com base no meu briefing. Propõe objetivo, público, orçamento e criativos, e me guia até publicar quando eu aprovar.',
+    'Quero criar uma campanha de anúncio no Meta com base no meu briefing. Antes de gerar criativo ou proposta, confirme comigo se a oferta principal cadastrada é mesmo o produto/serviço que devo anunciar agora.',
   icon: 'Megaphone',
 };
 
