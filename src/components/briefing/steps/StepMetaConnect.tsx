@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { CheckCircle2, ExternalLink, Loader2, Settings2 } from 'lucide-react';
 import { useMetaConnect } from '@/hooks/use-meta-connect';
-import { MetaAssetPickerModal } from '@/components/meta/MetaAssetPickerModal';
+import { MetaAssetPicker } from '@/components/meta/MetaAssetPicker';
 import { useToast } from '@/hooks/use-toast';
 
 interface Props {
@@ -23,15 +23,35 @@ export function StepMetaConnect({ disabled, onFinish, onBack }: Props) {
     connect,
     isConnecting,
   } = useMetaConnect();
-  const [showAssets, setShowAssets] = useState(false);
+  const [pickerActive, setPickerActive] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    const open = () => setTimeout(() => setShowAssets(true), 300);
+    const open = () => setPickerActive(true);
     window.addEventListener('meta-oauth-completed', open);
     return () => window.removeEventListener('meta-oauth-completed', open);
   }, []);
+
+  if (pickerActive && isConnected) {
+    return (
+      <div className="flex flex-col h-[65vh] min-h-[480px]">
+        <MetaAssetPicker
+          onComplete={() => {
+            setPickerActive(false);
+            queryClient.invalidateQueries({ queryKey: ['meta-integration'] });
+            queryClient.invalidateQueries({ queryKey: ['meta-assets'] });
+            toast({
+              title: 'Ativos salvos',
+              description: 'Sincronizacao em background. Você ja pode usar o painel.',
+            });
+            onFinish();
+          }}
+          onCancel={() => setPickerActive(false)}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-5">
@@ -79,7 +99,7 @@ export function StepMetaConnect({ disabled, onFinish, onBack }: Props) {
             variant="outline"
             className="w-full sm:w-auto"
             disabled={disabled}
-            onClick={() => setShowAssets(true)}
+            onClick={() => setPickerActive(true)}
           >
             <Settings2 className="h-4 w-4 mr-2" />
             Escolher Business Managers e contas
@@ -113,19 +133,6 @@ export function StepMetaConnect({ disabled, onFinish, onBack }: Props) {
         </Button>
       </div>
 
-      <MetaAssetPickerModal
-        open={showAssets}
-        onOpenChange={setShowAssets}
-        onComplete={() => {
-          setShowAssets(false);
-          queryClient.invalidateQueries({ queryKey: ['meta-integration'] });
-          queryClient.invalidateQueries({ queryKey: ['meta-assets'] });
-          toast({
-            title: 'Ativos salvos',
-            description: 'Sincronizacao em background. Você ja pode usar o painel.',
-          });
-        }}
-      />
     </div>
   );
 }
